@@ -1,0 +1,9 @@
+Prueba: data/test_1.txt
+Multiplicación completada en 0.000008 segundos.
+
+Prueba: data/test_2.txt
+Multiplicación completada en 0.001949 segundos.
+
+Prueba: data/test_3.txt
+Multiplicación completada en 0.102593 segundos.
+
