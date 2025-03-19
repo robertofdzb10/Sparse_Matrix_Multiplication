@@ -1,6 +1,6 @@
-# Proyecto de Multiplicación de Matriz Dispersa por Vector
+# Multiplicación Matriz Dispersa por Vector (Formato CSR)
 
-Este repositorio contiene un ejemplo de cómo leer una matriz dispersa (en formato COO) y un vector desde un archivo de texto, convertir la matriz a formato CSR (Compressed Sparse Row) y realizar la multiplicación secuencial. Además, se miden los tiempos de CPU (con `clock()`) y se guardan los resultados y el tiempo de ejecución en archivos separados.
+Este repositorio implementa la multiplicación secuencial de una matriz dispersa (formato COO convertido a CSR) por un vector. Se mide el tiempo de ejecución y los resultados se guardan en archivos separados.
 
 ## Estructura del Repositorio
 
@@ -17,97 +17,68 @@ Este repositorio contiene un ejemplo de cómo leer una matriz dispersa (en forma
 │   └── generar_txt.py
 ├── .gitignore
 ├── main
-├── main.c
+└── main.c
 ```
 
-A continuación, se describe el propósito de cada carpeta y archivo:
+- **data/**: Archivos con casos de prueba (matriz en formato COO y vector).
+- **results/**: Archivos generados:
+  - `results.txt`: Resultados de las multiplicaciones.
+  - `time.txt`: Tiempos de ejecución.
+- **utils/**:
+  - `generar_txt.py`: Script Python para generar casos de prueba personalizados.
+- **main.c**: Código fuente principal.
+- **main**: Ejecutable compilado.
 
-- **data/**  
-  Contiene archivos de prueba (en formato texto) con datos para la multiplicación.  
-  - `test_1.txt`: Caso de prueba pequeño.  
-  - `test_2.txt`: Caso de prueba mediano/grande.  
-  - `test_3.txt`: Otro caso de prueba de tamaño intermedio o grande.  
+## Compilación
 
-- **results/**  
-  Carpeta donde se generan/almacenan los resultados de las ejecuciones.  
-  - `results.txt`: Aquí se guarda el resultado detallado de la multiplicación (valores del vector resultado).  
-  - `time.txt`: Aquí se registra el tiempo de ejecución (CPU) para cada prueba, junto con el nombre del archivo de entrada.  
-
-- **utils/**  
-  Contiene scripts auxiliares.  
-  - `generar_txt.py`: Ejemplo de script Python para generar archivos de prueba con comentarios y un formato específico (matriz en formato COO y vector).  
-
-- **.gitignore**  
-  Archivo para ignorar ficheros generados (binarios, etc.) que no se deseen incluir en el repositorio.
-
-- **main**  
-  Binario (ejecutable) resultante tras compilar `main.c` (nombre opcional).
-
-- **main.c**  
-  Código fuente principal en C. Lee el archivo de datos, convierte la matriz a CSR, realiza la multiplicación y escribe los resultados.
-
-## Uso y Ejecución
-
-### 1. Compilación
-
-Para compilar el código principal (`main.c`) en un sistema tipo Unix/Linux o macOS, ejecuta:
+Compila usando `gcc`:
 
 ```bash
 gcc -o main main.c -O2
 ```
 
-Si deseas habilitar OpenMP para paralelización con hilos, añade la bandera `-fopenmp`:
+Para OpenMP (opcional):
 
 ```bash
 gcc -o main main.c -O2 -fopenmp
 ```
 
-> **Nota:** Dependiendo del tamaño de la matriz (por ejemplo, si usas `test_2.txt` o `test_3.txt` con millones de elementos), asegúrate de ajustar las macros `#define MAX_N` y `#define MAX_NNZ` en `main.c` y disponer de suficiente memoria.
+## Ejecución
 
-### 2. Preparar los Archivos de Datos
-
-En la carpeta `data/` se encuentran varios archivos de prueba:
-
-- `test_1.txt`  
-  Prueba pequeña, se espera que el programa tarde muy poco tiempo en completarla.
-
-- `test_2.txt`  
-  Prueba de tamaño mayor; en función de la densidad y del hardware, debería tardar más.
-
-- `test_3.txt`  
-  Otra prueba de tamaño medio/grande.
-
-Si deseas generar más archivos de prueba, puedes usar el script de ejemplo `generar_txt.py` ubicado en `utils/`, adaptándolo a tus necesidades (tamaño, densidad, comentarios, etc.).
-
-### 3. Ejecución
-
-Para ejecutar el binario compilado y usar uno de los archivos de prueba, por ejemplo `test_2.txt`, haz:
+Ejecuta con:
 
 ```bash
-./main data/test_2.txt
+./main data/test_1.txt
 ```
 
-El programa:
-1. Lee la primera línea (n y nnz).
-2. Lee los nnz elementos en formato (fila, columna, valor).
-3. Construye la matriz en formato CSR.
-4. Lee el vector (n líneas).
-5. Realiza la multiplicación y mide el tiempo de CPU (`clock()`).
-6. Muestra la salida por consola y guarda:
-   - El vector resultado en **results/results.txt**.
-   - El tiempo de ejecución en **results/time.txt**.
+El programa hace lo siguiente:
+1. Lee matriz dispersa (formato COO) y vector.
+2. Convierte la matriz a formato CSR.
+3. Realiza multiplicación y mide el tiempo.
+4. Guarda resultados en:
+   - `results/results.txt`
+   - `results/time.txt`
 
-### 4. Ver Resultados
+## Ver Resultados
 
-- En consola verás la información de la prueba (nombre del archivo) y el tiempo total de multiplicación.  
-- En la carpeta **results/** se generan (o se agregan) los siguientes archivos:
-  - `results.txt`: Contiene las líneas con el resultado de la multiplicación para cada índice del vector.  
-  - `time.txt`: Registra la prueba y el tiempo total de CPU invertido en la multiplicación.
+Consulta:
 
-### Notas Finales
+- **Resultados detallados:** `results/results.txt`
+- **Tiempo ejecución:** `results/time.txt`
 
-- Si deseas medir el **tiempo de pared** (wall-clock time) en lugar del tiempo de CPU, deberás reemplazar las llamadas a `clock()` por otras funciones (por ejemplo, `gettimeofday()` o `clock_gettime()` en Linux).
-- Para pruebas realmente grandes (millones de filas/columnas y cientos de millones de elementos no cero), considera el consumo de memoria y el límite de dirección virtual de tu sistema.  
-- Este proyecto es una base para introducir paralelización (OpenMP o MPI), así como optimizaciones específicas (por ejemplo, uso de BLAS, vectorización, etc.).
+## Generar Nuevas Pruebas
 
-¡Disfruta usando y experimentando con este proyecto de multiplicación de matrices dispersas!
+Puedes crear archivos personalizados usando:
+
+```bash
+python3 utils/generar_txt.py
+```
+
+## Notas Importantes
+
+- Ajusta `MAX_N` y `MAX_NNZ` en `main.c` según el tamaño de tu prueba.
+- El tiempo se mide con `clock()` (tiempo CPU). Para tiempo real (wall-clock), utiliza funciones como `gettimeofday()` o `clock_gettime()`.
+- Para matrices grandes, verifica la memoria disponible.
+
+¡Explora y experimenta con la multiplicación de matrices dispersas!
+
